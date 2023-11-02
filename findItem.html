@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- All previous code... -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Lost Item | YourSiteName</title>
+    <style>
+        /* Add your custom styles here */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #0058a3;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .navbar {
+            background-color: #333;
+            overflow: hidden;
+        }
+
+        .navbar a {
+            float: left;
+            display: block;
+            color: #fff;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        .navbar a:hover {
+            background-color: #ddd;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 36px;
+        }
+
+        p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .results {
+            text-align: left;
+        }
+
+        .item-card {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background-color: #0058a3;
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #00407a;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Lost and Found</h1>
+    </header>
+    <div class="navbar">
+        <div class="navbar">
+            <a href="/landing.html">Home</a>
+            <a href="/reportItem.html">Report Lost Item</a>
+            <a href="/findItem.html">Find Lost Item</a>
+        </div>
+    </div>
+    <div class="container">
+        <h2>Find a Lost Item</h2>
+        <p>Enter keywords related to the lost item below to search for it.</p>
+        <form id="searchForm">
+            <label for="searchKeywords">Search Keywords</label>
+            <input type="text" id="searchKeywords" name="searchKeywords" placeholder="e.g., wallet, phone, keys"
+                required>
+            <div class="autocomplete-suggestions" id="autocompleteSuggestions"></div>
+
+            <button type="submit" class="btn">Search</button>
+        </form>
+
+        <div class="results" id="searchResults">
+            <!-- The search results will be displayed here -->
+        </div>
+    </div>
+    <script>
+        // Sample data for demonstration purposes
+        const items = [
+            { id: 1, name: "Lost Wallet", description: "Brown leather wallet containing ID cards and cash.", location: { lat: 40.7128, lng: -74.0060 }, status: "active" },
+            { id: 2, name: "Lost Phone", description: "Black iPhone 12 in a blue case.", location: { lat: 40.7282, lng: -74.0776 }, status: "active" },
+            { id: 3, name: "Lost Keys", description: "Set of keys with a green keychain.", location: { lat: 40.7390, lng: -73.9898 }, status: "reunited" }
+        ];
+
+        // Function to display search results
+        function displaySearchResults(keywords) {
+            const resultsContainer = document.getElementById("searchResults");
+            resultsContainer.innerHTML = "";
+
+            // Filter the items based on search keywords (case-insensitive)
+            const filteredItems = items.filter(item =>
+                item.name.toLowerCase().includes(keywords.toLowerCase()) ||
+                item.description.toLowerCase().includes(keywords.toLowerCase())
+            );
+
+            // Sort the filtered items (optional, based on user-selected option)
+            // You can implement the sorting logic here.
+
+            // Display each item as a card in the results container
+            filteredItems.forEach(item => {
+                const itemCard = document.createElement("div");
+                itemCard.classList.add("item-card");
+                itemCard.innerHTML = `
+                    <h3>${item.name}</h3>
+                    <p>${item.description}</p>
+                    <p>Status: ${item.status === 'reunited' ? 'Reunited' : 'Active'}</p>
+                `;
+                resultsContainer.appendChild(itemCard);
+            });
+
+            // If no results found
+            if (filteredItems.length === 0) {
+                const noResultsMessage = document.createElement("p");
+                noResultsMessage.textContent = "No results found.";
+                resultsContainer.appendChild(noResultsMessage);
+            }
+        }
+
+        // Function to handle autocomplete suggestions
+        function showAutocompleteSuggestions(keywords) {
+            const suggestionsContainer = document.getElementById("autocompleteSuggestions");
+            suggestionsContainer.innerHTML = "";
+
+            // Filter the items for autocomplete suggestions (case-insensitive)
+            const matchingItems = items.filter(item =>
+                item.name.toLowerCase().includes(keywords.toLowerCase())
+            );
+
+            // Display the suggestions
+            matchingItems.forEach(item => {
+                const suggestionItem = document.createElement("div");
+                suggestionItem.classList.add("suggestion");
+                suggestionItem.textContent = item.name;
+                suggestionItem.addEventListener("click", () => {
+                    document.getElementById("searchKeywords").value = item.name;
+                    suggestionsContainer.innerHTML = "";
+                });
+                suggestionsContainer.appendChild(suggestionItem);
+            });
+        }
+
+        // Handle form submission for search
+        const searchForm = document.getElementById("searchForm");
+        searchForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const keywords = document.getElementById("searchKeywords").value;
+            displaySearchResults(keywords);
+        });
+
+        // Handle autocomplete suggestions
+        const searchKeywords = document.getElementById("searchKeywords");
+        searchKeywords.addEventListener("input", function () {
+            const keywords = this.value;
+            showAutocompleteSuggestions(keywords);
+        });
+    </script>
+</body>
+
+</html>
